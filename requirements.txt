@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pandas==2.2.2
+joblib==1.5.3
+scikit-learn
+numpy
+pydantic
+pydantic_settings
+starlette
