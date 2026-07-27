@@ -15,7 +15,7 @@ def get_markov_model() -> MarkovChainModel:
     global _markov_model
     if _markov_model is None:
       settings = get_settings()
-      path = settings.ml_artifacts_dir / "markov_transition_matrix.joblib"
+      path = settings.ml_artifacts_dir / "markov_transition_matrix.parquet"
       _markov_model = MarkovChainModel(path)
     return _markov_model
 

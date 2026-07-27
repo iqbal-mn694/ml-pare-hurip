@@ -1,12 +1,11 @@
-import joblib
 import pandas as pd
 from pathlib import Path
 
 # wraps a transition matrix with probability distributions for phase transitions, and provides methods to predict the next phase given a current phase --
 class MarkovChainModel:
-  # load the transition matrix from a joblib file in the given artifact directory
+  # load the transition matrix from a parquet file in the given artifact directory
   def __init__(self, artifact_dir: Path) -> None:
-    self._transition_matrix: pd.DataFrame = joblib.load(artifact_dir)
+    self._transition_matrix: pd.DataFrame = pd.read_parquet(artifact_dir)
 
   # predict the next phase given a current phase, returning the predicted phase and its probability; if the current phase is not in the transition matrix, return the current phase with a probability of 0.0
   def predict(self, current_phase: str) -> tuple[str, float]:
