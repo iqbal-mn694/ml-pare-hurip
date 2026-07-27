@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse
 
 from app.api.api import api_router
 from app.core.config import get_settings
+from app.api.deps import preload_models
 from app.core.logging import configure_logging
 
 
@@ -22,6 +23,13 @@ def create_app() -> FastAPI:
             settings.app_name,
             settings.environment,
         )
+
+        # Preload ML models so a missing/broken artifact fails fast at
+        # startup, instead of only surfacing on the first prediction request.
+        logger.info("Loading ML models...")
+        preload_models()
+        logger.info("ML models loaded successfully")
+
         yield
         logger.info("Shutting down %s", settings.app_name)
 
