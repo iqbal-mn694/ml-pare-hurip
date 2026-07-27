@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     # ML model configuration 
     api_v1_prefix: str = "/api/v1"
     ml_artifacts_dir: Path = BASE_DIR / "ml" / "artifacts"
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
 
 
 @lru_cache
