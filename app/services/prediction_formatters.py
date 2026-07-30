@@ -88,7 +88,6 @@ def to_random_forest_prediction_response(
         predictions=to_random_forest_horizon_predictions(item.year, item.month, raw_predictions),
     )
 
-
 # generates a sequence of daily predictions starting the day after last_price_date, pairing each predicted price with its corresponding calendar date
 def to_daily_price_predictions(last_price_date: date, predicted_prices: list[float]) -> list[DailyPricePrediction]:
     return [
