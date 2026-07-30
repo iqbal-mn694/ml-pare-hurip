@@ -8,3 +8,4 @@ numpy
 pydantic
 pydantic_settings
 starlette
+tensorflow-cpu==2.18.0
