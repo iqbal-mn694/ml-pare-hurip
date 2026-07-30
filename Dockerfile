@@ -1,4 +1,3 @@
-# Gunakan Debian-slim versi Python 3.12 (sesuai Google Colab)
 FROM python:3.12-slim
 
 # Set working directory
@@ -7,6 +6,10 @@ WORKDIR /app
 # Avoid writing .pyc files
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+
+# curl is needed for the container healthcheck (docker-compose.yml)
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy all files to the working directory
 COPY . .
