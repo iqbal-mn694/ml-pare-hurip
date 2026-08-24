@@ -1,14 +1,14 @@
 from datetime import date, timedelta
 from app.schemas.phase_prediction_requests import PhasePredictionInput
+from app.schemas.price_prediction_requests import PricePredictionInput
 from app.schemas.phase_prediction_responses import (
+    MarkovPredictionResponse,
     MarkovHorizonPrediction,
     HorizonPrediction,
     MarkovBatchResultItem,
     RandomForestBatchResultItem,
     RandomForestPredictionResponse,
 )
-
-from app.schemas.price_prediction_requests import PricePredictionInput
 from app.schemas.price_prediction_responses import (
     DailyPricePrediction,
     LSTMHybridBatchResultItem,
@@ -25,11 +25,39 @@ def _add_months(year: int, month: int, offset: int) -> tuple[int, int]:
   new_month = zero_based_month % 12 + 1
   return new_year, new_month
 
-def to_markov_horizon_predictions(raw_predictions: dict[int, str]) -> list[MarkovHorizonPrediction]:
+def to_markov_horizon_predictions(
+    raw_predictions: dict[int, tuple[str, float]],
+) -> list[MarkovHorizonPrediction]:
     return [
-        MarkovHorizonPrediction(horizon_months=horizon, predicted_phase=phase)
-        for horizon, phase in sorted(raw_predictions.items())
+        MarkovHorizonPrediction(
+            horizon_months=horizon,
+            predicted_phase=predicted_phase,
+            transition_probability=probability,
+        )
+        for horizon, (predicted_phase, probability) in sorted(raw_predictions.items())
     ]
+
+def to_markov_prediction_response(
+    item: PhasePredictionInput,
+    raw_predictions: dict[int, tuple[str, float]],
+) -> MarkovPredictionResponse:
+    return MarkovPredictionResponse(
+        segment_id=item.segment_id,
+        subsegment=item.subsegment,
+        current_phase=item.current_phase,
+        predictions=to_markov_horizon_predictions(raw_predictions),
+    )
+
+def to_markov_batch_result_item(
+    item: PhasePredictionInput,
+    raw_predictions: dict[int, tuple[str, float]],
+) -> MarkovBatchResultItem:
+    return MarkovBatchResultItem(
+        segment_id=item.segment_id,
+        subsegment=item.subsegment,
+        current_phase=item.current_phase,
+        predictions=to_markov_horizon_predictions(raw_predictions),
+    )
 
 def to_random_forest_horizon_predictions(
     year: int,
@@ -47,18 +75,6 @@ def to_random_forest_horizon_predictions(
         for horizon, (predicted_phase, confidence) in sorted(raw_predictions.items())
         for target_year, target_month in [_add_months(year, month, horizon)]
     ]
-
-def to_markov_batch_result_item(
-    item: PhasePredictionInput,
-    predicted_phase: str,
-    probability: float,
-) -> MarkovBatchResultItem:
-    return MarkovBatchResultItem(
-        segment_id=item.segment_id,
-        subsegment=item.subsegment,
-        predicted_phase=predicted_phase,
-        transition_probability=probability,
-    )
 
 def to_random_forest_batch_result_item(
     item: PhasePredictionInput,

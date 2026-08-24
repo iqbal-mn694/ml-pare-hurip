@@ -2,18 +2,27 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-# markov prediction response schemas
-class MarkovPredictionResponse(BaseModel):
+# horizon prediction schema for the Markov Chain model
+class MarkovHorizonPrediction(BaseModel):
+    horizon_months: int
     predicted_phase: str
-    transition_probability: float
+    transition_probability: float = Field(..., ge=0.0, le=1.0, description="Transition probability of the predicted phase (0-1)")
 
 
-# markov batch prediction schemas
+# response schema for predictions using the Markov Chain model
+class MarkovPredictionResponse(BaseModel):
+    segment_id: Optional[str] = None
+    subsegment: str
+    current_phase: str
+    predictions: list[MarkovHorizonPrediction]
+
+
+# batch result schemas for the Markov Chain model
 class MarkovBatchResultItem(BaseModel):
     segment_id: Optional[str] = None
     subsegment: str
-    predicted_phase: str
-    transition_probability: float
+    current_phase: str
+    predictions: list[MarkovHorizonPrediction]
 
 
 # response schema for batch predictions using the Markov Chain model
@@ -21,18 +30,12 @@ class MarkovBatchPredictionResponse(BaseModel):
     results: list[MarkovBatchResultItem]
 
 
-# horizon prediction schemas
-class MarkovHorizonPrediction(BaseModel):
-    horizon_months: int
-    predicted_phase: str
-
-
 class HorizonPrediction(BaseModel):
     horizon_months: int
     target_year: int
     target_month: int
     predicted_phase: str
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Model's confidence in this prediction (0-1)")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Tingkat keyakinan model terhadap prediksi ini (0-1)")
 
 
 # response schema for predictions using the Random Forest model

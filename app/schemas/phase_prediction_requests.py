@@ -10,7 +10,7 @@ class PhasePredictionInput(BaseModel):
     subsegment: str = Field(..., examples=["A1"], description="Subsegment identifier")
     current_phase: str = Field(..., examples=["4.0"], description="Phase code observed this month")
     previous_phase: str = Field(..., examples=["3.1"], description="Phase code observed the month before")
-    district_code: str = Field(..., examples=["327801"], description="6-digit district code")
+    district_code: str = Field(..., examples=["3278010"], description="7-digit district code")
     month: int = Field(..., ge=1, le=12, description="Current calendar month (1-12)")
     year: int = Field(
         default_factory=lambda: date.today().year,
