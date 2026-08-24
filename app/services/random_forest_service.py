@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from app.ml.random_forest_model import RandomForestPhaseModel
 from app.schemas.phase_prediction_requests import (
     BatchPhasePredictionRequest,
@@ -24,8 +26,21 @@ class RandomForestService:
   ) -> list[dict[str, str | int]]:
     return [item.model_dump(exclude={"segment_id"}) for item in request.items]
 
+  # validates one item and translates unknown categorical inputs into a 422 response
+  def _validate_item(self, item: PhasePredictionRequest) -> None:
+    try:
+      self._model.validate(
+        current_phase=item.current_phase,
+        previous_phase=item.previous_phase,
+        district_code=item.district_code,
+        subsegment=item.subsegment,
+      )
+    except ValueError as exc:
+      raise HTTPException(status_code=422, detail=str(exc))
+
   # predict the next rice growth phase(s) for a given horizon using the RandomForestPhaseModel
   def predict_horizons(self, request: PhasePredictionRequest) -> RandomForestPredictionResponse:
+    self._validate_item(request)
     return to_random_forest_prediction_response(
       request,
       self._model.predict(
@@ -39,6 +54,9 @@ class RandomForestService:
 
   # predict batch of rice growth phase(s) for multiple segments and subsegments using the RandomForestPhaseModel
   def predict_batch(self, request: BatchPhasePredictionRequest) -> RandomForestBatchPredictionResponse:
+    for item in request.items:
+      self._validate_item(item)
+
     raw_results = self._model.predict_batch(self._build_prediction_rows(request))
 
     results = [
