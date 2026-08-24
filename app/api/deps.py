@@ -21,8 +21,7 @@ def get_markov_model() -> MarkovChainModel:
     global _markov_model
     if _markov_model is None:
       settings = get_settings()
-      path = settings.ml_artifacts_dir / "markov_transition_matrix.parquet"
-      _markov_model = MarkovChainModel(path)
+      _markov_model = MarkovChainModel(settings.ml_artifacts_dir)
     return _markov_model
 
 # get the random forest model, loading it if it hasn't been loaded yet

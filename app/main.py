@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.api import api_router
+from app.api.routers import health
 from app.core.config import get_settings
 from app.api.deps import preload_models
 from app.core.logging import configure_logging
@@ -53,6 +54,8 @@ def create_app() -> FastAPI:
     async def root() -> RedirectResponse:
         return RedirectResponse(url="/docs")
 
+    # /health lives at the root (outside /api/v1) because the container healthcheck and DEPLOY.md curl it there
+    app.include_router(health.router)
     app.include_router(api_router)
     return app
 
