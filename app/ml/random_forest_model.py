@@ -16,6 +16,34 @@ class RandomForestPhaseModel:
     self._district_encoder = encoders["district_encoder"]
     self._subsegment_encoder = encoders["subsegment_encoder"]
 
+  # raises ValueError listing the accepted values when any categorical input was never seen during training
+  def validate(
+      self,
+      current_phase: str,
+      previous_phase: str,
+      district_code: str,
+      subsegment: str,
+  ) -> None:
+    valid_phases = list(self._phase_encoder.classes_)
+    if current_phase not in valid_phases:
+      raise ValueError(
+        f"Current phase '{current_phase}' is invalid. Supported phases: {', '.join(valid_phases)}"
+      )
+    if previous_phase not in valid_phases:
+      raise ValueError(
+        f"Previous phase '{previous_phase}' is invalid. Supported phases: {', '.join(valid_phases)}"
+      )
+    valid_districts = list(self._district_encoder.classes_)
+    if district_code not in valid_districts:
+      raise ValueError(
+        f"District code '{district_code}' is invalid. Supported codes: {', '.join(valid_districts)}"
+      )
+    valid_subsegments = list(self._subsegment_encoder.classes_)
+    if subsegment not in valid_subsegments:
+      raise ValueError(
+        f"Subsegment '{subsegment}' is invalid. Supported subsegments: {', '.join(valid_subsegments)}"
+      )
+
   # builds a feature matrix from a list of input rows, encoding categorical features and adding sine and cosine transformations of the month feature
   def _build_feature_matrix(self, rows: list[dict]) -> pd.DataFrame:
     df = pd.DataFrame(rows)
